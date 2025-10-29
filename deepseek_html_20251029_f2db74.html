@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Multiplayer Game Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        input:focus {
+            outline: 3px solid #4CAF50;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2196F3, #0b7dda);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .info-box {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .room-code {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 10px;
+            color: #4CAF50;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .share-link {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .share-link:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.02);
+        }
+
+        .player-list {
+            margin: 20px 0;
+        }
+
+        .player-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-item.ready {
+            border-left: 5px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .player-icon {
+            font-size: 2rem;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .player-secret {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .ready-badge {
+            background: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .success-msg {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .error-msg {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .loading {
+            background: rgba(33, 150, 243, 0.3);
+            color: #2196F3;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #4CAF50;
+            font-weight: bold;
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .join-code-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .join-code-input input {
+            flex: 1;
+        }
+
+        .join-code-input button {
+            width: auto;
+            padding: 15px 25px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .connected {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        .disconnected {
+            background: rgba(244, 67, 54, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">🔴 Offline</div>
+    
+    <div class="container">
+        <!-- Welcome/Join Screen -->
+        <div id="welcomeScreen">
+            <h1>🎮 Online Multiplayer Game</h1>
+            
+            <div class="tab-container">
+                <div class="tab active" id="createTab" onclick="switchTab('create')">Create Room</div>
+                <div class="tab" id="joinTab" onclick="switchTab('join')">Join Room</div>
+            </div>
+            
+            <div id="createSection">
+                <div class="input-group">
+                    <label>👤 Your Name</label>
+                    <input type="text" id="playerName" placeholder="Enter your name (min 3 chars)" maxlength="15">
+                </div>
+                
+                <div class="input-group">
+                    <label>🔢 Secret Number</label>
+                    <input type="text" id="secretNumber" placeholder="3 digits (e.g., 123)" maxlength="3">
+                </div>
+                
+                <button class="btn" onclick="createRoom()">🚀 Create Room</button>
+            </div>
+            
+            <div id="joinSection" class="hidden">
+                <div class="input-group">
+                    <label>👤 Your Name</label>
+                    <input type="text" id="joinPlayerName" placeholder="Enter your name (min 3 chars)" maxlength="15">
+                </div>
+                
+                <div class="input-group">
+                    <label>🔢 Secret Number</label>
+                    <input type="text" id="joinSecretNumber" placeholder="3 digits (e.g., 123)" maxlength="3">
+                </div>
+                
+                <div class="input-group">
+                    <label>🔑 Room Code</label>
+                    <div class="join-code-input">
+                        <input type="text" id="roomCodeInput" placeholder="Enter 4-letter room code" maxlength="4" style="text-transform: uppercase">
+                        <button class="btn btn-secondary" onclick="joinRoomByCode()">Join</button>
+                    </div>
+                </div>
+                
+                <div class="error-msg" id="joinError">
+                    ❌ Could not find room with this code
+                </div>
+            </div>
+            
+            <div class="loading hidden" id="loadingIndicator">
+                🔄 Connecting to server...
+            </div>
+        </div>
+        
+        <!-- Room Screen -->
+        <div id="roomScreen" class="hidden">
+            <h1>🏠 Game Room</h1>
+            
+            <div class="info-box">
+                <h2>📱 Share This!</h2>
+                <div class="room-code" id="roomCodeDisplay">----</div>
+                
+                <button class="btn" onclick="copyLink()">📋 Copy Share Link</button>
+                <div class="success-msg" id="copySuccess">✅ Link copied! Send to friends!</div>
+                
+                <div class="share-link" id="shareLinkDisplay" onclick="copyLink()">
+                    Click to copy link
+                </div>
+                
+                <p style="margin-top: 15px; color: #4CAF50;">
+                    ⭐ Anyone with this link can join!
+                </p>
+            </div>
+            
+            <div class="player-list">
+                <h2>👥 Players (<span id="playerCount">0</span>)</h2>
+                <div id="playersContainer"></div>
+            </div>
+            
+            <button id="readyBtn" class="btn btn-secondary" onclick="toggleReady()">✅ I'm Ready!</button>
+            <button id="startGameBtn" class="btn hidden" onclick="startGame()">🎮 Start Game</button>
+            <button class="btn btn-danger" onclick="leaveRoom()">🚪 Leave Room</button>
+            
+            <p id="statusText" style="text-align: center; margin-top: 20px; font-size: 1.1rem;">
+                Waiting for players...
+            </p>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+        
+        const BACKEND_URL = 'https://jsonbox.io';
+        const ROOM_BOX_ID = 'multiplayer_game_rooms';
+        const API_URL = `${BACKEND_URL}/${ROOM_BOX_ID}`;
+        
+        const STATE = {
+            player: {
+                id: 'P_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                name: '',
+                secret: '',
+                isHost: false,
+                isReady: false
+            },
+            room: {
+                _id: '',
+                code: '',
+                host: '',
+                players: [],
+                status: 'waiting',
+                createdAt: Date.now()
+            },
+            joinMode: false,
+            isConnected: false,
+            pollInterval: null
+        };
+        
+        function updateConnectionStatus(connected) {
+            STATE.isConnected = connected;
+            const statusElem = document.getElementById('connectionStatus');
+            if (connected) {
+                statusElem.textContent = '🟢 Online';
+                statusElem.className = 'connection-status connected';
+            } else {
+                statusElem.textContent = '🔴 Offline';
+                statusElem.className = 'connection-status disconnected';
+            }
+        }
+        
+        function showScreen(screenId) {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('roomScreen').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+        
+        function switchTab(tab) {
+            document.getElementById('createTab').classList.toggle('active', tab === 'create');
+            document.getElementById('joinTab').classList.toggle('active', tab === 'join');
+            document.getElementById('createSection').classList.toggle('hidden', tab !== 'create');
+            document.getElementById('joinSection').classList.toggle('hidden', tab !== 'join');
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').classList.toggle('hidden', !show);
+        }
+        
+        async function apiRequest(url, options = {}) {
+            try {
+                showLoading(true);
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                updateConnectionStatus(false);
+                throw error;
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function createRoomOnServer(room) {
+            const response = await apiRequest(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(room)
+            });
+            return response;
+        }
+        
+        async function getRoom(roomId) {
+            const response = await apiRequest(`${API_URL}/${roomId}`);
+            return response;
+        }
+        
+        async function getAllRooms() {
+            const response = await apiRequest(API_URL);
+            return response;
+        }
+        
+        async function updateRoom(roomId, updates) {
+            const response = await apiRequest(`${API_URL}/${roomId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updates)
+            });
+            return response;
+        }
+        
+        async function deleteRoom(roomId) {
+            await apiRequest(`${API_URL}/${roomId}`, {
+                method: 'DELETE'
+            });
+        }
+        
+        async function findRoomByCode(code) {
+            const rooms = await getAllRooms();
+            return rooms.find(room => room.code === code && room.status === 'waiting');
+        }
+        
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return code;
+        }
+        
+        async function createRoom() {
+            const name = document.getElementById('playerName').value.trim();
+            const secret = document.getElementById('secretNumber').value.trim();
+            
+            if (!name || name.length < 3) {
+                alert('Please enter a name (at least 3 characters)');
+                return;
+            }
+            
+            if (!secret || secret.length !== 3 || isNaN(secret)) {
+                alert('Please enter a valid 3-digit number');
+                return;
+            }
+            
+            STATE.player.name = name;
+            STATE.player.secret = secret;
+            
+            const roomCode = generateRoomCode();
+            const newRoom = {
+                code: roomCode,
+                host: STATE.player.id,
+                players: [{
+                    id: STATE.player.id,
+                    name: STATE.player.name,
+                    secret: STATE.player.secret,
+                    isHost: true,
+                    isReady: false
+                }],
+                status: 'waiting',
+                createdAt: Date.now()
+            };
+            
+            try {
+                const createdRoom = await createRoomOnServer(newRoom);
+                STATE.room = createdRoom;
+                STATE.player.isHost = true;
+                STATE.joinMode = false;
+                
+                updateConnectionStatus(true);
+                showRoom();
+                startRoomPolling();
+            } catch (error) {
+                alert('Failed to create room. Please check your connection and try again.');
+            }
+        }
+        
+        async function joinRoomByCode() {
+            const name = document.getElementById('joinPlayerName').value.trim();
+            const secret = document.getElementById('joinSecretNumber').value.trim();
+            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            
+            if (!name || name.length < 3) {
+                alert('Please enter a name (at least 3 characters)');
+                return;
+            }
+            
+            if (!secret || secret.length !== 3 || isNaN(secret)) {
+                alert('Please enter a valid 3-digit number');
+                return;
+            }
+            
+            if (!roomCode || roomCode.length !== 4) {
+                alert('Please enter a valid 4-letter room code');
+                return;
+            }
+            
+            STATE.player.name = name;
+            STATE.player.secret = secret;
+            
+            try {
+                const room = await findRoomByCode(roomCode);
+                
+                if (!room) {
+                    document.getElementById('joinError').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('joinError').style.display = 'none';
+                    }, 3000);
+                    return;
+                }
+                
+                STATE.room = room;
+                STATE.joinMode = true;
+                await joinRoom();
+            } catch (error) {
+                alert('Failed to join room. Please check your connection and try again.');
+            }
+        }
+        
+        async function joinRoom() {
+            const existingPlayerIndex = STATE.room.players.findIndex(p => p.id === STATE.player.id);
+            
+            if (existingPlayerIndex >= 0) {
+                STATE.room.players[existingPlayerIndex] = {
+                    id: STATE.player.id,
+                    name: STATE.player.name,
+                    secret: STATE.player.secret,
+                    isHost: false,
+                    isReady: false
+                };
+            } else {
+                STATE.room.players.push({
+                    id: STATE.player.id,
+                    name: STATE.player.name,
+                    secret: STATE.player.secret,
+                    isHost: false,
+                    isReady: false
+                });
+            }
+            
+            STATE.player.isHost = false;
+            
+            try {
+                await updateRoom(STATE.room._id, {
+                    players: STATE.room.players
+                });
+                
+                updateConnectionStatus(true);
+                showRoom();
+                startRoomPolling();
+            } catch (error) {
+                alert('Failed to join room. Please try again.');
+            }
+        }
+        
+        function showRoom() {
+            showScreen('roomScreen');
+            updateRoomDisplay();
+        }
+        
+        function updateRoomDisplay() {
+            document.getElementById('roomCodeDisplay').textContent = STATE.room.code;
+            
+            const link = window.location.origin + window.location.pathname + '?room=' + STATE.room.code;
+            document.getElementById('shareLinkDisplay').textContent = link;
+            
+            document.getElementById('playerCount').textContent = STATE.room.players.length;
+            
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = '';
+            
+            STATE.room.players.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'player-item' + (player.isReady ? ' ready' : '');
+                
+                div.innerHTML = `
+                    <div class="player-icon">${player.isHost ? '👑' : '👤'}</div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-secret">#${player.secret}</div>
+                    </div>
+                    ${player.isReady ? '<div class="ready-badge">READY</div>' : ''}
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            const me = STATE.room.players.find(p => p.id === STATE.player.id);
+            if (me) {
+                STATE.player.isReady = me.isReady;
+                document.getElementById('readyBtn').textContent = 
+                    me.isReady ? '❌ Not Ready' : '✅ I\'m Ready!';
+            }
+            
+            const readyCount = STATE.room.players.filter(p => p.isReady).length;
+            document.getElementById('statusText').textContent = 
+                `${readyCount}/${STATE.room.players.length} players ready`;
+            
+            if (STATE.player.isHost) {
+                const allReady = readyCount === STATE.room.players.length && STATE.room.players.length >= 2;
+                document.getElementById('startGameBtn').classList.toggle('hidden', !allReady);
+            }
+        }
+        
+        async function toggleReady() {
+            STATE.player.isReady = !STATE.player.isReady;
+            
+            const playerIndex = STATE.room.players.findIndex(p => p.id === STATE.player.id);
+            if (playerIndex >= 0) {
+                STATE.room.players[playerIndex].isReady = STATE.player.isReady;
+            }
+            
+            try {
+                await updateRoom(STATE.room._id, {
+                    players: STATE.room.players
+                });
+                updateRoomDisplay();
+            } catch (error) {
+                console.error('Failed to update ready status');
+            }
+        }
+        
+        function copyLink() {
+            const link = window.location.origin + window.location.pathname + '?room=' + STATE.room.code;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showCopySuccess();
+                }).catch(() => {
+                    fallbackCopy(link);
+                });
+            } else {
+                fallbackCopy(link);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (e) {
+                alert('Copy this link:\n\n' + text);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        function showCopySuccess() {
+            const msg = document.getElementById('copySuccess');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+        
+        function startRoomPolling() {
+            if (STATE.pollInterval) clearInterval(STATE.pollInterval);
+            
+            STATE.pollInterval = setInterval(async () => {
+                try {
+                    const updatedRoom = await getRoom(STATE.room._id);
+                    if (updatedRoom) {
+                        const myPlayer = STATE.room.players.find(p => p.id === STATE.player.id);
+                        STATE.room = updatedRoom;
+                        
+                        if (myPlayer) {
+                            const index = STATE.room.players.findIndex(p => p.id === STATE.player.id);
+                            if (index >= 0) {
+                                STATE.room.players[index] = myPlayer;
+                            }
+                        }
+                        
+                        updateRoomDisplay();
+                        updateConnectionStatus(true);
+                    }
+                } catch (error) {
+                    updateConnectionStatus(false);
+                }
+            }, 2000);
+        }
+        
+        async function startGame() {
+            if (!STATE.player.isHost) return;
+            
+            try {
+                await updateRoom(STATE.room._id, {
+                    status: 'playing'
+                });
+                
+                alert('🎮 Game starting!\n\nPlayers will now begin the "Outside the Precedent" game!\n\nThe secret topic will be revealed to all players except one...');
+            } catch (error) {
+                alert('Failed to start game. Please try again.');
+            }
+        }
+        
+        async function leaveRoom() {
+            if (confirm('Leave this room?')) {
+                if (STATE.pollInterval) {
+                    clearInterval(STATE.pollInterval);
+                    STATE.pollInterval = null;
+                }
+                
+                try {
+                    const playerIndex = STATE.room.players.findIndex(p => p.id === STATE.player.id);
+                    if (playerIndex >= 0) {
+                        STATE.room.players.splice(playerIndex, 1);
+                        
+                        if (STATE.room.players.length === 0) {
+                            await deleteRoom(STATE.room._id);
+                        } else {
+                            if (STATE.player.isHost) {
+                                STATE.room.players[0].isHost = true;
+                                STATE.room.host = STATE.room.players[0].id;
+                            }
+                            
+                            await updateRoom(STATE.room._id, {
+                                players: STATE.room.players,
+                                host: STATE.room.host
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error leaving room:', error);
+                }
+                
+                window.location.href = window.location.origin + window.location.pathname;
+            }
+        }
+        
+        async function checkURLForRoom() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const roomCode = params.get('room');
+                
+                if (roomCode) {
+                    document.getElementById('roomCodeInput').value = roomCode;
+                    switchTab('join');
+                    
+                    const room = await findRoomByCode(roomCode);
+                    if (room) {
+                        document.getElementById('joinPlayerName').focus();
+                    }
+                }
+            } catch (error) {
+                console.error('URL check error:', error);
+            }
+        }
+        
+        window.addEventListener('load', function() {
+            updateConnectionStatus(false);
+            checkURLForRoom();
+            
+            ['playerName', 'secretNumber', 'joinPlayerName', 'joinSecretNumber', 'roomCodeInput'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            if (id === 'roomCodeInput') {
+                                joinRoomByCode();
+                            } else if (id === 'playerName' || id === 'secretNumber') {
+                                createRoom();
+                            } else if (id === 'joinPlayerName' || id === 'joinSecretNumber') {
+                                joinRoomByCode();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
